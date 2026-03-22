@@ -1,4 +1,5 @@
-import api from './axiosConfig';
+import { axiosInstance } from './axiosConfig';
+import { NetworkModule } from '../routes/network';
 
 export interface User {
   id?: number;
@@ -30,7 +31,7 @@ class UserService {
    */
   async getAllUsers(): Promise<User[]> {
     try {
-      const response = await api.get<ApiResponse<User[]>>('/users');
+      const response = await axiosInstance.get<ApiResponse<User[]>>(NetworkModule.USER);
       if (response.data.success) {
         return response.data.data || [];
       }
@@ -46,7 +47,7 @@ class UserService {
    */
   async getUserById(id: number): Promise<User> {
     try {
-      const response = await api.get<ApiResponse<User>>(`/users/${id}`);
+      const response = await axiosInstance.get<ApiResponse<User>>(`${NetworkModule.USER}/${id}`);
       if (response.data.success) {
         return response.data.data!;
       }
@@ -62,7 +63,7 @@ class UserService {
    */
   async createUser(user: User & { password: string }): Promise<User> {
     try {
-      const response = await api.post<ApiResponse<User>>('/users', user);
+      const response = await axiosInstance.post<ApiResponse<User>>(NetworkModule.USER, user);
       if (response.data.success) {
         return response.data.data!;
       }
@@ -78,7 +79,7 @@ class UserService {
    */
   async updateUser(id: number, user: Partial<User>): Promise<User> {
     try {
-      const response = await api.put<ApiResponse<User>>(`/users/${id}`, user);
+      const response = await axiosInstance.put<ApiResponse<User>>(`${NetworkModule.USER}/${id}`, user);
       if (response.data.success) {
         return response.data.data!;
       }
@@ -94,7 +95,7 @@ class UserService {
    */
   async deleteUser(id: number): Promise<void> {
     try {
-      const response = await api.delete<ApiResponse<void>>(`/users/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(`${NetworkModule.USER}/${id}`);
       if (!response.data.success) {
         throw new Error('Failed to delete user');
       }

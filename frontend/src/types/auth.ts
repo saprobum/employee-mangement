@@ -69,7 +69,7 @@ export interface AuthTokens {
 
 // Login credentials
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
   rememberMe?: boolean;
 }

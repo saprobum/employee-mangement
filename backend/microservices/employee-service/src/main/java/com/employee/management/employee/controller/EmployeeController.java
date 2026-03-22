@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/employees")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class EmployeeController {
 
     @Autowired

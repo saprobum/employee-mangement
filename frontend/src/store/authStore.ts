@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { authApi } from '../services/auth';
+import * as authApi from '../services/authApi';
 import type { User, LoginCredentials } from '../types/auth';
 
 interface AuthState {
@@ -32,15 +32,26 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await authApi.login(credentials);
+          const response: any = await authApi.login(credentials);
+          
+          if (response?.isAxiosError || response instanceof Error || response.success === false) {
+             throw new Error(response?.response?.data?.message || response?.message || 'Login failed');
+          }
+
+          const mappedUser = {
+            ...response.user,
+            isActive: response.user.active,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
           
           // Store tokens and user in localStorage
-          localStorage.setItem('auth_token', response.tokens.accessToken);
-          localStorage.setItem('auth_refresh_token', response.tokens.refreshToken);
-          localStorage.setItem('auth_user', JSON.stringify(response.user));
+          localStorage.setItem('auth_token', response.token);
+          localStorage.setItem('auth_refresh_token', response.token);
+          localStorage.setItem('auth_user', JSON.stringify(mappedUser));
 
           set({
-            user: response.user,
+            user: mappedUser as User,
             isAuthenticated: true,
             isLoading: false,
           });

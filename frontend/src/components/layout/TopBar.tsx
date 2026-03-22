@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore, useUser } from '../../store/authStore';
 import { usePermission } from '../../store/permissionStore';
+import { useThemeStore } from '../../store/themeStore';
 
 export interface TopBarProps {
   onMenuClick: () => void;
@@ -12,6 +13,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const user = useUser();
   const { logout } = useAuthStore();
   const { hasRole } = usePermission();
+  const setThemeSidebarOpen = useThemeStore((state) => state.setSidebarOpen);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -112,6 +114,17 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
               </div>
             )}
           </div>
+
+          {/* Theme Switcher */}
+          <button
+            onClick={() => setThemeSidebarOpen(true)}
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+            title="Design Settings"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+          </button>
 
           {/* Settings */}
           {hasRole('SUPER_ADMIN') && (

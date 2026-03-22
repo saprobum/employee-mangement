@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Routes from '../../config/routes';
+import Routes from '../../routes/routes';
 
 export interface BreadcrumbItem {
   label: string;

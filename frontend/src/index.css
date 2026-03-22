@@ -1,16 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #ff0000;
-  --color-secondary: #818cf8;
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-error: var(--theme-error);
+  --color-banner-from: var(--theme-bannerFrom);
+  --color-banner-to: var(--theme-bannerTo);
+}
+
+:root {
+  --theme-primary: #ff0000;
+  --theme-secondary: #818cf8;
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-error: #ef4444;
+  --theme-bannerFrom: #4f46e5;
+  --theme-bannerTo: #ec4899;
 }
 
 
 
-/* .custom-class {
-  background-color: #ffffff;
-  color: #111827;
-}
 
 
  @media (prefers-color-scheme: dark) {
@@ -18,4 +29,4 @@
     background-color: #05112c;
     color: #ffffff;
   }
- } */
+ } 

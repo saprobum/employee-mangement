@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { employeeApi } from '../services/employeeApi';
+import * as employeeApi from '../services/employeeApi';
 import type { Employee } from '../types/employee';
 
 interface EmployeeState {
@@ -89,19 +89,38 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          const result = await employeeApi.getEmployees({
-            search: filters.search,
-            department: filters.department,
-            status: filters.status,
-            page: currentPage,
-            limit: 10,
-          });
+          // Fetch from actual API
+          let response: any = await employeeApi.getAllEmployees();
+          if (response?.isAxiosError || response instanceof Error) throw new Error(response?.response?.data?.message || 'Failed to fetch employees');
+          let allEmployees: Employee[] = response.data || [];
+
+          // Apply local filtering (since backend doesn't support these params natively yet)
+          if (filters.search) {
+            const searchLower = filters.search.toLowerCase();
+            allEmployees = allEmployees.filter(e => 
+              e.firstName.toLowerCase().includes(searchLower) ||
+              e.lastName.toLowerCase().includes(searchLower) ||
+              (e as any).jobTitle?.toLowerCase().includes(searchLower) ||
+              (e as any).position?.toLowerCase().includes(searchLower)
+            );
+          }
+          if (filters.department && filters.department !== 'All') {
+            allEmployees = allEmployees.filter(e => e.department === filters.department);
+          }
+          if (filters.status && filters.status !== 'All') {
+            allEmployees = allEmployees.filter(e => e.status === filters.status);
+          }
+
+          // Apply local pagination
+          const limit = 10;
+          const totalPages = Math.ceil(allEmployees.length / limit) || 1;
+          const paginatedEmployees = allEmployees.slice((currentPage - 1) * limit, currentPage * limit);
 
           set((prevState) => ({
             ...prevState,
-            employees: result.employees,
-            totalPages: result.totalPages,
-            totalEmployees: result.total,
+            employees: paginatedEmployees,
+            totalPages: totalPages,
+            totalEmployees: allEmployees.length,
             loading: false,
           }));
         } catch (error: any) {
@@ -120,7 +139,9 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          const employee = await employeeApi.getEmployee(id);
+          const response: any = await employeeApi.getEmployeeById(id);
+          if (response?.isAxiosError || response instanceof Error) throw new Error(response?.response?.data?.message || 'Failed to fetch employee details');
+          const employee = response.data;
 
           set((prevState) => ({
             ...prevState,
@@ -143,7 +164,9 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          const newEmployee = await employeeApi.createEmployee(employeeData);
+          const response: any = await employeeApi.createEmployee(employeeData as Employee);
+          if (response?.isAxiosError || response instanceof Error) throw new Error(response?.response?.data?.message || 'Failed to create employee');
+          const newEmployee = response.data;
           
           set((prevState) => ({
             ...prevState,
@@ -169,7 +192,9 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          const updatedEmployee = await employeeApi.updateEmployee(id, employeeData);
+          const response: any = await employeeApi.updateEmployee(id, employeeData);
+          if (response?.isAxiosError || response instanceof Error) throw new Error(response?.response?.data?.message || 'Failed to update employee');
+          const updatedEmployee = response.data;
           
           set((prevState) => ({
             ...prevState,
@@ -197,7 +222,8 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          await employeeApi.deleteEmployee(id);
+          const response: any = await employeeApi.deleteEmployee(id);
+          if (response?.isAxiosError || response instanceof Error) throw new Error(response?.response?.data?.message || 'Failed to delete employee');
           
           set((prevState) => ({
             ...prevState,
@@ -222,11 +248,12 @@ export const useEmployeeStore = create<EmployeeState>()(
         set({ loading: true, error: null });
 
         try {
-          await employeeApi.deleteEmployees(ids);
+          // Fallback to multiple regular delete calls if bulk endpoint isn't mapped in employeeService
+          await Promise.all(ids.map(id => employeeApi.deleteEmployee(id)));
           
           set((prevState) => ({
             ...prevState,
-            employees: prevState.employees.filter(emp => !ids.includes(emp.id)),
+            employees: prevState.employees.filter(emp => !ids.includes(emp.id as number)),
             totalEmployees: prevState.totalEmployees - ids.length,
             loading: false,
           }));

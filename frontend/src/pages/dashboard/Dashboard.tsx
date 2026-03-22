@@ -30,13 +30,23 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Banner Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-banner-from to-banner-to p-8 shadow-lg transition-colors duration-200">
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold text-white">Welcome back, {user?.firstName}! ✨</h2>
+          <p className="mt-2 text-white/90 max-w-xl text-lg">
+            Here's a quick overview of what's happening today in your organization.
+          </p>
+        </div>
+        {/* Decorative background pattern */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 right-32 -mb-16 w-48 h-48 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+      </div>
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Welcome back, {user?.firstName}! Here's what's happening today.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
         </div>
         {can('EMPLOYEE_CREATE') && (
           <Button variant="primary" leftIcon={

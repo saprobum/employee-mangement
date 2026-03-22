@@ -1,98 +1,46 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../config/network';
+import { NetworkInfo } from '../routes/network';
 
 // Create axios instance with default configuration
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false,
-  timeout: 30000,
+export const axiosInstance = axios.create({
+  baseURL: NetworkInfo.URL,
+  // withCredentials: true,
+  // timeout: 10000,
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config: any) => {
-    const token = localStorage.getItem('token');
-
-    // Add token to authorization header if it exists
+    const token = localStorage.getItem("token");
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers["ngrok-skip-browser-warning"] = true;
     }
-
     return config;
   },
-  (error) => {
-    console.error('Request interceptor error:', error);
+  (error: any) => {
     return Promise.reject(error);
-  },
+  }
 );
 
-// Response interceptor for error handling
-api.interceptors.response.use(
-  (response) => {
+axiosInstance.interceptors.response.use(
+  (response: any) => {
+    if (response.status < 200 || response.status >= 300) {
+      return Promise.reject(response.data);
+    }
     return response;
   },
-  (error) => {
-    console.error('API Error:', error);
-
-    // Handle 401 Unauthorized - Token expired or invalid
+  async (error: any) => {
     if (error.response && error.response.status === 401) {
-      console.warn('Authentication failed. Clearing session...');
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      
-      // Redirect to login if not already there
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
+      window.location.href = "/";
     }
-
     return Promise.reject(error);
-  },
+  }
 );
 
 // Export the configured axios instance
-export default api;
+export default axiosInstance;
 
-// Auth API functions
-export const authApi = {
-  login: (username: string, password: string) => 
-    api.post('/auth/login', { username, password }),
-  
-  register: (userData: any) => 
-    api.post('/auth/register', userData),
-  
-  refreshToken: () => 
-    api.post('/auth/refresh', {}, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    }),
-};
 
-// User API functions
-export const userApi = {
-  getAllUsers: () => api.get('/users'),
-  getUserById: (id: number) => api.get(`/users/${id}`),
-  createUser: (userData: any) => api.post('/users', userData),
-  updateUser: (id: number, userData: any) => api.put(`/users/${id}`, userData),
-  deleteUser: (id: number) => api.delete(`/users/${id}`),
-};
-
-// Employee API functions
-export const employeeApi = {
-  getAllEmployees: () => api.get('/employees'),
-  getEmployeeById: (id: number) => api.get(`/employees/${id}`),
-  getEmployeeByEmployeeId: (employeeId: string) => 
-    api.get(`/employees/search/by-employee-id/${employeeId}`),
-  getEmployeesByDepartment: (department: string) => 
-    api.get(`/employees/department/${department}`),
-  createEmployee: (employeeData: any) => api.post('/employees', employeeData),
-  updateEmployee: (id: number, employeeData: any) => api.put(`/employees/${id}`, employeeData),
-  deleteEmployee: (id: number) => api.delete(`/employees/${id}`),
-};
 
 // Utility functions
 export const setAuthToken = (token: string) => {

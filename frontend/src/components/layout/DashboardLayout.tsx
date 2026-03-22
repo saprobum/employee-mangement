@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import TopBar from './TopBar';
 import Footer from './Footer';
+import ThemeCustomizer from './ThemeCustomizer';
 
 export const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +26,9 @@ export const DashboardLayout: React.FC = () => {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* Theme Customizer Overlay */}
+      <ThemeCustomizer />
     </div>
   );
 };

@@ -10,19 +10,13 @@ import { FormInput } from '../../components/forms/FormInput';
 
 // Login form schema
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  username: z.string().min(1, 'Username is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   rememberMe: z.boolean().optional(),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-// Demo credentials for testing
-const DEMO_CREDENTIALS = [
-  { role: 'Super Admin', email: 'admin@company.com', password: 'password123' },
-  { role: 'HR Manager', email: 'hr@company.com', password: 'password123' },
-  { role: 'Employee', email: 'employee@company.com', password: 'password123' },
-];
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -39,7 +33,7 @@ const Login: React.FC = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
       rememberMe: false,
     },
@@ -65,11 +59,7 @@ const Login: React.FC = () => {
     }
   };
 
-  const fillDemoCredentials = (credentials: typeof DEMO_CREDENTIALS[0]) => {
-    // Note: In a real app, you'd use setValue from react-hook-form
-    // For this demo, we'll just show the credentials
-    alert(`Use these credentials:\nEmail: ${credentials.email}\nPassword: ${credentials.password}`);
-  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -100,14 +90,14 @@ const Login: React.FC = () => {
               </div>
             )}
 
-            {/* Email field */}
+            {/* Username field */}
             <FormInput
-              label="Email Address"
-              name="email"
+              label="Username"
+              name="username"
               register={register}
-              error={errors.email}
-              type="email"
-              placeholder="you@example.com"
+              error={errors.username}
+              type="text"
+              placeholder="admin"
               required
               leftIcon={
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,22 +185,7 @@ const Login: React.FC = () => {
             {showDemoCredentials ? 'Hide' : 'Show'} demo credentials
           </button>
 
-          {/* Demo credentials list */}
-          {showDemoCredentials && (
-            <div className="mt-4 space-y-2">
-              {DEMO_CREDENTIALS.map((cred) => (
-                <div
-                  key={cred.role}
-                  className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                  onClick={() => fillDemoCredentials(cred)}
-                >
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{cred.role}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{cred.email}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">{cred.password}</p>
-                </div>
-              ))}
-            </div>
-          )}
+         
         </Card>
 
         {/* Footer text */}

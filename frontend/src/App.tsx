@@ -1,14 +1,13 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
-import AppRoutes from './config/routes';
+import AppRoutes from './routes/routes';
 
 // Layout
-import { DashboardLayout } from './components/layout';
+import DashboardLayout from './components/layout/DashboardLayout';
 
 // Auth
-import { Login } from './pages/auth';
-
+import Login from './pages/auth/Login';
 // Protected Route
 import ProtectedRoute from './components/ProtectedRoute';
 import PermissionRoute from './components/PermissionRoute';
